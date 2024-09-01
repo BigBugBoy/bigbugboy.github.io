@@ -418,6 +418,18 @@ docker run -v /opt/data:/data [image_name]
 
 
 
+**查看宿主机上挂载卷地址**
+
+- 终端输入下面的命令，就可以看到了。
+
+~~~bash
+docker run -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh
+~~~
+
+
+
+
+
 
 
 ## docker volume create 方式
@@ -587,7 +599,7 @@ Apt-get 换源
 >
 >https://mirrors.tuna.tsinghua.edu.cn/help/debian/
 
-- 因为是在阿里云服务器上，直接使用内网地址（http://mirrors.tencentyun.com）
+- 因为是在腾讯云服务器上，直接使用内网地址（http://mirrors.tencentyun.com）
 - 修改 `/etc/apt/sources.list.d/debian.sources` 为如下内容
 
 ~~~bash
