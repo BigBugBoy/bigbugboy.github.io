@@ -80,7 +80,7 @@ RUN  apt-get update && apt-get install -y vim
 WORKDIR /root
 ~~~
 
->注意：可以使用多个WORKDIR指令，但是只有最后一个指令生效。就可以使用相对路径。
+>注意：可以使用多个`WORKDIR`指令，但是只有最后一个指令生效。多个`WORKDIR`指令时后面的指令值可以是前面指令值的相对路径。
 
 <br>
 
@@ -90,7 +90,7 @@ WORKDIR /root
 ENV <key>=<value> ...
 ~~~
 
-- 可以一次设置一对；同时设置对个键值对时，空格间隔
+- 可以一次设置一对，也可以同时设置多个键值对，空格间隔即可。
 
 ~~~bash
 ENV MY_NAME="liuxu"
@@ -209,7 +209,7 @@ CMD ls /
 docer run --rm my-nginx:ls ls /var
 ~~~
 
->注意：不要混淆 `RUN` 和 `CMD`。`RUN` 是在构建镜像时执行的命令并将执行结构构建在镜像中；`CMD` 在构建时不执行任何操作，但为镜像创建容器时指定默认的命令。
+>注意：不要混淆 `RUN` 和 `CMD`。`RUN` 是在构建镜像时执行的命令并将执行结果构建在镜像中；`CMD` 在构建时不执行任何操作，是为镜像创建容器时指定默认的命令。
 
 <br>
 
@@ -250,7 +250,7 @@ CMD ["/"]
 - 不要安装不需要的包
 - 应用解耦
 - 对多行参数进行排序
-- 使用`RUN apt-get update && apt-get install -y` 确保您的 Dockerfile 安装最新的软件包版本，无需进 一步编码或手动干预。
+- 使用`RUN apt-get update && apt-get install -y` 确保您的 Dockerfile 安装最新的软件包版本，无需进一步编码或手动干预。
 
 <br>
 
@@ -278,7 +278,7 @@ Components: main contrib non-free non-free-firmware
 Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
 ~~~
 
->注意：因为是在腾讯云服务器上，直接使用内网地址（[http://mirrors.tencentyun.com）](http://mirrors.tencentyun.com)/)，否则的话需要使用公网的地址 https://mirrors.cloud.tencent.com/
+>注意：因为是在腾讯云服务器上，直接使用腾讯云内网地址：http://mirrors.tencentyun.com，否则的话需要使用公网的地址：https://mirrors.cloud.tencent.com/
 
 
 
