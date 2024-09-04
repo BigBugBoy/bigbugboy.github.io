@@ -27,17 +27,13 @@ dark_theme:
 
 # 联系方式
 contact:
-  github: "https://github.com/f-dong"
-  twitter:
-  weibo:
-  zhihu:
-  facebook:
+  github: "https://github.com/bigbugboy"
 
 # 首页头像图片
 avatar: /images/avatar.png
 
 # 站点图标
-favicon: /favicon.ico
+favicon: /images/avatar.png
 
 # 谷歌统计 跟踪 ID
 ga:
