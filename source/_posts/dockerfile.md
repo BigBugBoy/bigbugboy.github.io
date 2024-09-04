@@ -1,5 +1,5 @@
 ---
-title: dockerfile
+title: Dockerfile
 tags: docker
 date: 2024-09-04 16:02:47
 ---
