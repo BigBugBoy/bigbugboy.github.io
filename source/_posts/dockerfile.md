@@ -4,11 +4,12 @@ tags: docker
 date: 2024-09-04 16:02:47
 ---
 
-
 # Dockerfile
 
 **Dockerfile 是一个文本文件，用于构建镜像**。Dockerfile 中包含了一条条的指令（Instruction），每一条指令构建一层，因此每一条指令的内容，就是描述该层应当如何构建。
 Dockerfile 中的指令不区分大小写，但是为了可读性，建议使用大写。Dockerfile 中的指令按照从上到下的顺序执行。
+
+![image-20240904221922850](https://raw.githubusercontent.com/bigbugboy/pic/main/img/dockerfile.png)
 
 比如：基于 Nginx 构建一个自己的镜像，在家目录下面新建 `test.txt`，字符串 `hello docker` 保存在这个文件中。
 

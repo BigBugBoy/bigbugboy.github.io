@@ -107,13 +107,15 @@ NetSarang Computer,Inc.以过去10年免费提供强大的SSH和SFTP/FTP客户�
 
 # 仓库镜像容器的关系
 
+![](https://docs.docker.com/get-started/images/docker-architecture.webp)
+
 - Docker 镜像（Image）：镜像是一个只读的模板，可以用来创建容器。
 - Docker 容器（Container）：容器是镜像的运行实例，它是一个独立的环境，可以在这个环境中运行应用程序，一个镜像可以创建多个容器。
 - Docker 仓库（Repository）：Docker 仓库是用来存储 Docker 镜像的地方。仓库可以分为本地仓库和远程仓库， 比如 DockerHub 是官方的镜像仓库，同时也是一个远程仓库，我们可以在这里下载各种镜像，也可以将自己的镜像上传到这里。
 
 >补充：仓库镜像容器的概念非常重要。为了更好的理解三者的关系，可以这样来理解：镜像就相当于一个QQ安装包，这个安装包可以在电脑上安装成为QQ程序（相当于容器），也可以继续在其他电脑上安装另一个QQ程序（甚至可以在一个电脑上登陆多个QQ），QQ安装包从应用市场（仓库）下载的。
 
-
+<br>
 
 
 
