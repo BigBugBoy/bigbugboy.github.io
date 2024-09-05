@@ -52,8 +52,11 @@ import time
 import redis
 from flask import Flask
 
+
 app = Flask(__name__)
+# 如果这里使用的是 redis 的ip则更麻烦
 cache = redis.Redis(host='redis', port=6379)
+
 
 def get_hit_count():
     retries = 5
@@ -66,10 +69,11 @@ def get_hit_count():
             retries -= 1
             time.sleep(0.5)
 
+
 @app.route('/')
 def hello():
     count = get_hit_count()
-    return 'Hello World! I have been seen {} times.\n'.format(count)
+    return f'Hello World! I have been seen {count} times.\n'
 ~~~
 
 对于这个项目，使用 docker 来部署需要拆分为两个容器，一个是web容器，一个是 redis 容器。其中，web 容器依赖 redis 容器，且在 web 容器中需要通过字符串 `redis` 这个名字找到 redis 服务的，而不是通过写死的 IP 地址。
@@ -91,9 +95,8 @@ FROM python:3.10-alpine
 WORKDIR /code
 ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
-RUN apk add --no-cache gcc musl-dev linux-headers
 COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 EXPOSE 5000
 COPY . .
 CMD ["flask", "run", "--debug"]
@@ -151,7 +154,7 @@ curl http://127.0.0.1:5000/
 ~~~yaml
 services:
   redis:
-    image: redis:alpine
+    image: redis
   web:
     build: .
     ports:
@@ -196,7 +199,7 @@ docker compose down
 
 
 
-# docker-compose 常用命令行指令
+# docker compose 常用命令行指令
 
 | 命令    | 描述                                              |
 | ------- | ------------------------------------------------- |
@@ -225,9 +228,112 @@ docker compose down
 
 
 
-# docker-compose 和 docker compose
+# docker compose 历史
+
+Compose是一个容器编排工具。其实，Fig 项目在开发者面前第一次提出了“容器编排”（Container Orchestration）的概念。 后来，Fig 项目被收购后Docker公司并改名为 Compose。
+
+Docker Compose 的第一版于 2014 年发布。它用 Python 编写，并使用 `docker-compose` 命令调用。
+
+Docker Compose 的第二版于 2020 年发布，用 Go 编写，并使用 `docker compose` 命令调用。
+
+![](https://docs.docker.net.cn/compose/images/v1-versus-v2.png)
+
+
+
+对于初学者来说，如果你使用的是最新版本的 docker，可以直接使用 `docker compose` 这个命令来使用 compose工具；对于老版本的 docker 用户，因为 compose没有集成到docker中，你需要单独安装 docker-compose 工具，然后使用 `docker-compose` 命令来使用 compose 工具。
+
+在 linux 上单独安装 docker-compose 
+
+~~~bash
+curl -SL https://github.com/docker/compose/releases/download/v2.29.2/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+~~~
+
+对二进制文件应用可执行权限
+
+~~~bash
+chmod +x /usr/local/bin/docker-compose
+~~~
+
+测试
+
+~~~bash
+docker-compose
+~~~
+
+>如果使用的是 docker desktop，则无需安装直接使用 `docker-compose`。另外，`docker compose` 和 `docker-compose` 的命令和用法完全一致（比如：`docker compose up -d` 等价于 `docker-compose up -d`），使用其中一种即可。 
+
+
+
+**注意：**
+
+- 如果使用的是 `docker-compose `命令，一般配套使用 `docker-compose.yaml`文件。
+
+- 如果使用的是 `docker compose` 命令，一般配套使用 `compose.yaml`文件，但是它也支持使用 `docker-compose.yaml`文件。如果同时存在，则优先使用 `compose.yaml`文件。
+
+<br>
+
+
+
+# compose 文件的结构
+
+Compose 规范是 Compose 文件格式的最新版本，也是推荐版本。它可以帮助你定义一个 Compose 文件，用于配置 Docker 应用程序的服务、网络、卷等。
+
+Compose 文件顶层有4个常用配置项：`name`、`services`、`networks`、`volumes`
+
+**name**
+
+- 顶层 `name` 属性由 Compose 规范定义，作为项目名称。
+
+**services**
+
+- Compose 文件必须声明一个`services`顶级元素作为映射，其键是服务名称的字符串表示形式，其值是服务定义。每个服务定义运行时约束和要求以运行其容器。
+- 可以有多个服务，一个服务就是一个容器。
+
+**networks**
+
+- 顶级 `networks` 使你能够配置可在多个服务之间相互通信的网络。默认情况下，Compose 为您的应用程序设置单个网络。每个服务的容器都加入默认网络，并且可以与该网络上的其他容器通信，并且可以通过服务的名称发现。
+
+- 要跨多个服务使用网络，必须通过在 `services` 顶级元素中使用 [networks](https://docs.docker.net.cn/compose/compose-file/05-services/) 属性来显式授予每个服务访问权限。
+
+**volumes**
+
+- 顶级 `volumes` 使你能够配置可在多个服务之间重复使用的命名卷。要在多个服务之间使用卷，必须使用 `services` 顶级元素内的 [volumes](https://docs.docker.net.cn/compose/compose-file/05-services/#volumes) 属性显式地授予每个服务访问权限。
+
+
+
+**compose.yml**
+
+~~~yaml
+name: myapp
+
+services:
+  redis:
+    image: redis
+    networks:
+      - my-network
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    networks:
+      - my-network
+    volumes:
+      - my-data:/etc/data
+
+networks:
+  my-network:
+
+volumes:
+  my-data:
+~~~
+
+<br>
+
+
 
 # compose 构建镜像
+
+
 
 #  compose 映射端口和环境变量
 
@@ -246,3 +352,4 @@ docker compose down
 # compose 构建WordPress博客系统
 
 # compose 构建项目Django项目
+
