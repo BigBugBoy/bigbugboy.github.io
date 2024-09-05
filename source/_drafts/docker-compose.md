@@ -3,6 +3,41 @@ title: docker-compose
 tags:
 ---
 
+Docker Compose 是一个定义和运行多容器应用程序的工具。Compose 简化了整个应用程序的控制，让你能够轻松地在一个简单易懂的 YAML 配置文件中管理服务、网络和卷。只需使用一个命令即可从配置文件中创建和启动所有服务。
+
+Compose 适用于所有环境；生产、准备、开发、测试以及 CI 工作流。它还具有用于管理应用程序整个生命周期的命令：
+
+- 启动、停止和重建服务
+- 查看正在运行的服务的状态
+- 流式输出正在运行的服务的日志
+- 在服务上运行一次性命令
+
+**Compose 的主要优点**，简化容器化应用程序的开发、部署和管理：
+
+- 简化控制：Docker Compose 允许您在单个 **YAML** 文件中定义和管理多容器应用程序。这简化了编排和协调各种服务的复杂任务，使管理和复制应用程序环境变得更加容易。
+- 高效协作：Docker Compose 配置文件易于共享，促进开发人员、运营团队和其他利益相关者之间的协作。这种协作方法可实现更顺畅的工作流程、更快的问题解决速度并提高整体效率。
+- 快速应用程序开发：Compose 缓存用于创建容器的配置。当您重新启动未更改的服务时，Compose 会重新使用现有容器。重复使用容器意味着您可以非常快速地更改环境。
+- 跨环境的可移植性：Compose 支持 Compose 文件中的变量。您可以使用这些变量针对不同的环境或不同的用户自定义您的组合。
+- 广泛的社区和支持：Docker Compose 受益于充满活力的社区，这意味着丰富的资源、教程和支持。这个社区驱动的生态系统有助于 Docker Compose 的持续改进，并帮助用户有效地解决问题。
+
+**Docker Compose 的常见使用场景**
+
+- 开发环境：在开发软件时，在隔离环境中运行应用程序并与之交互的能力至关重要。Compose 命令行工具可用于创建环境并与之交互。
+
+- 自动化测试环境：任何持续部署或持续集成流程的一个重要部分是自动化测试套件。
+
+```console
+$ docker compose up -d
+$ ./run_tests
+$ docker compose down
+```
+
+- 单主机部署：Compose 传统上一直专注于开发和测试工作流程，但随着每个版本的发布，我们都在更多面向生产的功能方面取得进展。
+
+<br>
+
+
+
 # docker compose 前戏
 
 在详细介绍docker compose 之前，我们来聊聊为什么需要它，在什么场景下使用它，使用它帮我们解决了什么痛点。
@@ -101,15 +136,96 @@ curl http://127.0.0.1:5000/
 
 总结：这个需求很简单，思路也很简单，但是实现起来很繁琐。需要手动运行两个容器，并且容器之间有依赖关系和关联关系。
 
+<br>
 
+
+
+# docker compose 快速上手
+
+>本节的主要目的是让大家快速上手 docker compose，具体细节不用在意，后面会详细介绍。我们先从整体上认识 docker compose 的基本使用流程。
+
+基于上节 flask-app项目，我们使用 compose的方式。第一步先准备一个 compose 文件。
+
+**compose.yaml**
+
+~~~yaml
+services:
+  redis:
+    image: redis:alpine
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+~~~
+
+**Compose 构建镜像**
+
+~~~bash
+docker compose build --no-cache
+~~~
+
+**Compose 运行服务**
+
+~~~bash
+docker compose up -d
+~~~
+
+**查看运行的compose项目**
+
+~~~bash
+docker compose ls
+~~~
+
+查看compose项目包含的容器
+
+~~~bash
+docker compose ps
+~~~
+
+启动、停止、清除项目
+
+~~~bash
+docker compose up
+docker compose stop [service]
+docker compose start [service]
+docker compose restart [service]
+docker compose down
+~~~
+
+<br>
+
+
+
+# docker-compose 常用命令行指令
+
+| 命令    | 描述                                              |
+| ------- | ------------------------------------------------- |
+| build   | 构建或重新构建服务                                |
+| cp      | 在服务容器和本地文件系统之间复制文件/文件夹       |
+| down    | 停止并删除容器、网络                              |
+| exec    | 在运行中的容器中执行命令                          |
+| images  | 列出由创建的容器使用的镜像                        |
+| kill    | 强制停止服务容器                                  |
+| logs    | 查看容器的输出                                    |
+| ls      | 列出正在运行的 Compose 项目                       |
+| ps      | 列出容器                                          |
+| restart | 重新启动服务容器                                  |
+| rm      | 移除已停止的服务容器                              |
+| run     | 在一个服务上运行一次性命令                        |
+| scale   | 扩展服务                                          |
+| start   | 启动服务                                          |
+| stats   | 显示容器资源使用统计数据的实时流                  |
+| stop    | 停止服务                                          |
+| top     | 显示正在运行的进程                                |
+| up      | 创建并启动容器                                    |
+| version | 显示 Docker Compose 版本信息                      |
+| watch   | 监视服务构建上下文，当文件更新时重新构建/刷新容器 |
+
+<br>
 
 
 
 # docker-compose 和 docker compose
-
-# docker-compose 快速上手
-
-# docker-compose 常用命令行指令
 
 # compose 构建镜像
 
