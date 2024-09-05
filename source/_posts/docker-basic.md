@@ -58,7 +58,7 @@ sudo docker version
 
 6. **配置 docker 镜像源**
 
-- 编辑或新建文件  `/etc/docker/daemon.json`，将如下内容复制到文件中并并保存。
+- 编辑或新建文件  `/etc/docker/daemon.json`，将如下内容复制到文件中并保存。
 - 执行命令后，重启 docker 即可，后面使用 `docker run` 下载镜像就会使用腾讯源了。
 
 ```json
@@ -85,7 +85,7 @@ sudo docker version
 
 # Mac 安装 docker
 
-Mac 安装 docker 非常方便，可以直接到 docker 官网下载最新版本的 docker desktop，然后点击安装。安装完成后，在启动台中找到 docker 图标，点击启动 docker 即可。随后就可以在控制台中使用 docker 指令，也可以在 docker desktop 中管理镜像和容器等。
+Mac 安装 docker 非常方便，可以直接到 docker 官网下载最新版本的 docker desktop，然后点击安装。安装完成后，在启动台中找到 docker 图标，点击启动 docker 即可。随后就可以在终端中使用 docker 指令，也可以在 docker desktop 中管理镜像和容器等。
 
 docker官网：https://www.docker.com/
 
@@ -232,7 +232,7 @@ docker push bigbugboy/my-nginx:v1
 
 **创建容器（仅创建，不运行）**
 
-```
+```bash
 docker create <image>
 ```
 
@@ -240,7 +240,7 @@ docker create <image>
 
 **启动容器**
 
-```
+```bash
 docker start <container>
 ```
 
@@ -248,7 +248,7 @@ docker start <container>
 
 **创建并运行容器**
 
-```
+```bash
 docker run <image>
 ```
 
@@ -267,7 +267,7 @@ docker ps
 
 **停止容器**
 
-```
+```bash
 docker stop <container>
 ```
 
@@ -275,7 +275,7 @@ docker stop <container>
 
 **重启容器**
 
-```
+```bash
 docker restart <container>
 ```
 
@@ -283,7 +283,7 @@ docker restart <container>
 
 **删除容器**
 
-```
+```bash
 docker rm <container>
 ```
 
@@ -294,7 +294,7 @@ docker rm <container>
 
 **进入容器**
 
-```
+```bash
 docker exec -it <container> bash
 ```
 
@@ -306,7 +306,7 @@ docker exec -it <container> bash
 
 **查看容器日志**
 
-```
+```bash
 docker logs <container>
 ```
 
@@ -486,7 +486,7 @@ docekr run -d -v mydata:/data <image>
 
 docker 默认会创建三个网络，分别是 bridge、host、none。
 
-- bridge：桥接网络，docke r默认使用的网络模式，使用 `docker run` 命令创建容器时如果不指定网络模式，那么就会使用 bridge 模式。
+- bridge：桥接网络，docker默认使用的网络模式，使用 `docker run` 命令创建容器时如果不指定网络模式，那么就会使用 bridge 模式。
 - host：主机网络，使用宿主机的网络，容器将不会获得一个独立的网络命名空间，配置和宿主机共享，容器将不会隔离宿主机网络，使用宿主机的IP和端口。
 - none：无网络、禁用网络，容器拥有自己的网络命名空间，但是并不为容器进行任何网络配置，这个网络模式的容器只适合于只进行数据处理，没有任何网络的应用场景。
 
@@ -546,7 +546,7 @@ docker安装并启动服务后，会在宿主机中添加一个虚拟网卡， `
 
 
 
-默认情况下通过 `docker run` 运行的容器都挂在 `docker0` 网卡上，即他们之际是在一个 ip 段上，网络互通。换句话说，换句话说在这些容器内可以痛通过 ip 互联。并且以为 `docker0` 在其中起到了连接容器和宿主机的作用，容器和宿主机支架也可以互联。
+默认情况下通过 `docker run` 运行的容器都挂在 `docker0` 网卡上，即它们之间是在一个 ip 段上，网络互通。换句话说，换句话说在这些容器内可以通过 ip 互联。并且以为 `docker0` 在其中起到了连接容器和宿主机的作用，容器和宿主机之间也可以互联。
 
 启动两个 nginx 容器
 
