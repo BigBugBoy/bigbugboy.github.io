@@ -1,5 +1,5 @@
 ---
-title: docker-compose
+title: Docker Compose
 tags:
 ---
 
@@ -14,11 +14,11 @@ Compose 适用于所有环境；生产、准备、开发、测试以及 CI 工�
 
 **Compose 的主要优点**，简化容器化应用程序的开发、部署和管理：
 
-- 简化控制：Docker Compose 允许您在单个 **YAML** 文件中定义和管理多容器应用程序。这简化了编排和协调各种服务的复杂任务，使管理和复制应用程序环境变得更加容易。
-- 高效协作：Docker Compose 配置文件易于共享，促进开发人员、运营团队和其他利益相关者之间的协作。这种协作方法可实现更顺畅的工作流程、更快的问题解决速度并提高整体效率。
-- 快速应用程序开发：Compose 缓存用于创建容器的配置。当您重新启动未更改的服务时，Compose 会重新使用现有容器。重复使用容器意味着您可以非常快速地更改环境。
-- 跨环境的可移植性：Compose 支持 Compose 文件中的变量。您可以使用这些变量针对不同的环境或不同的用户自定义您的组合。
-- 广泛的社区和支持：Docker Compose 受益于充满活力的社区，这意味着丰富的资源、教程和支持。这个社区驱动的生态系统有助于 Docker Compose 的持续改进，并帮助用户有效地解决问题。
+- 简化控制
+- 高效协作
+- 快速应用程序开发
+- 跨环境的可移植性
+- 广泛的社区和支持
 
 **Docker Compose 的常见使用场景**
 
@@ -262,8 +262,6 @@ docker-compose
 
 >如果使用的是 docker desktop，则无需安装直接使用 `docker-compose`。另外，`docker compose` 和 `docker-compose` 的命令和用法完全一致（比如：`docker compose up -d` 等价于 `docker-compose up -d`），使用其中一种即可。 
 
-
-
 **注意：**
 
 - 如果使用的是 `docker-compose `命令，一般配套使用 `docker-compose.yaml`文件。
@@ -301,7 +299,7 @@ Compose 文件顶层有4个常用配置项：`name`、`services`、`networks`、
 
 
 
-**compose.yml**
+**compose.yaml**
 
 ~~~yaml
 name: myapp
@@ -333,19 +331,389 @@ volumes:
 
 # compose 构建镜像
 
+Compose 文件中一个服务是一个容器，容器的创建肯定来自镜像。可以是已有的公共镜像，可以是已有的本地镜像，也可以是根据 `Dockerfile` 构建的镜像。
+
+**Compose文件中使用 `build` 根据 dockerfile 文件构建镜像**。
+
+~~~yaml
+services:
+  redis:
+    image: redis
+
+  web:
+    build: 
+      context: .
+      dockerfile: webapp.Dockerfile
+    
+    ports:
+      - "5000:5000"
+~~~
+
+其中，可以这样理解：
+
+- 如果 dockerfile文件的名字是 `Dockerfile`并且和Compose文件同级。则简单配置为
+
+  ~~~yaml
+  services:
+    web:
+      build: .
+  ~~~
+
+- 如果 dockerfile名字是 `webapp.Dockerfile`，则使用 `dockerfile`配置，路径使用 `context`配置
+
+  ~~~yaml
+  services:
+    web:
+      build:
+        context: .
+        dockerfile: webapp.Dockerfile
+  ~~~
 
 
-#  compose 映射端口和环境变量
 
-# compose 设置项目名称和容器名称 
+**Compose 文件中使用 `image` 根据已有镜像构建容器**。可以有如下配置形式。
 
-# compose 文件指令之links和depends_on
+~~~yaml
+services:
+   redis1:
+     image: redis
+   redis2:
+     image: redis:5
+   redis3: 
+     image: redis@sha256:0ed5d592...398bc4b991aac7
+   redis4:
+     image: library/redis
+   redis5: 
+     image: docker.io/library/redis
+   redis6:
+    image: my_private.registry:5000/redis
+~~~
+
+<br>
+
+
+
+# 设置项目名称和容器名称 
+
+在 Compose 中，默认项目名称就是项目所在文件夹的名字。但是我们也可以自定义项目名。
+
+**方式1：在 Compose 文件中使用配置 `name`**
+
+~~~yaml
+name: xxx
+
+services:
+  redis:
+    image: redis
+  web:
+    build: . 
+    ports:
+      - "5000:5000"
+~~~
+
+<br>
+
+**方式2：使用环境变量 `COMPOSE_PROJECT_NAME`**
+
+- 在项目路径下新建 `.env` 文件
+
+~~~bash
+COMPOSE_PROJECT_NAME=xyz
+~~~
+
+> compose 中还有很多内置的环境变量，请查看[官方文档](https://docs.docker.com/compose/environment-variables/envvars/)。
+
+<br>
+
+**方式3：使用参数 `-p`**
+
+~~~bash
+docker compose -p aaa up -d
+~~~
+
+
+
+**定义服务名**
+
+- 使用 `container_name` 定义容器名字。
+
+~~~yaml
+services:
+  redis:
+    image: redis
+    container_name: redis
+  web:
+    container_name: web
+    build: . 
+    ports:
+      - "5000:5000"
+~~~
+
+
+
+**定义构建的镜像名**
+
+- 使用 `image` 定义被构建的镜像名字
+
+~~~yaml
+services:
+  redis:
+    image: redis
+    container_name: redis
+  web:
+    container_name: web
+    image: my-web
+    build: . 
+    ports:
+      - "5000:5000"
+~~~
+
+<br>
+
+ 
+
+#  映射端口和环境变量
+
+Compose 文件中使用 `ports` 做端口映射。有两种配置方式：简单配置和复杂配置。
+
+**端口映射简单配置**
+
+~~~yaml
+ports:
+  - "5000"
+  - "3000-3005"
+  - "8000:8000"
+  - "9090-9091:8080-8081"
+  - "49100:22"
+  - "8000-9000:80"
+  - "127.0.0.1:8001:8001"
+  - "127.0.0.1:5000-5010:5000-5010"
+  - "6060:6060/udp"
+~~~
+
+**端口映射复杂配置**
+
+~~~yaml
+services:
+  redis:
+    image: redis
+    container_name: my-redis
+  web:
+    container_name: my-web-app
+    image: y-web
+    build: .
+    ports:
+      - name: web
+        target: 5000
+        host_ip: 127.0.0.1
+        published: 8000
+        protocol: tcp
+~~~
+
+
+
+**使用 `environment` 给容器配置环境变量**
+
+方式1：Map 形式
+
+~~~yaml
+environment:
+  RACK_ENV: development
+  SHOW: "true"
+  USER_INPUT:
+~~~
+
+方式2：Array 形式
+
+~~~yaml
+environment:
+  - RACK_ENV=development
+  - SHOW=true
+  - USER_INPUT
+~~~
+
+
+
+使用 `env_file` 以文件的形式给容器配置环境变量
+
+~~~yaml
+env_file: .env
+~~~
+
+or
+
+~~~yaml
+env_file:
+  - ./a.env
+  - ./b.env
+~~~
+
+>注意：如果在两个文件中同名了环境变量，则使用最后的一个文件中的值。
+
+<br>
+
+也可以在 yaml 文件中使用变量的方式获取环境变量的值。如果 `.env` 文件中不存在变量 `DEBUG`, Compose会给出警告提示。
+
+~~~yaml
+web:
+  environment:
+    - DEBUG=${DEBUG}
+~~~
+
+
+
+
+
+# 控制服务的启动顺序
+
+>为什么需要控制服务的启动顺序？
+>
+>一个很好的例子就是需要访问数据库的应用程序。如果这两个服务都使用 docker compose up 启动，则可能会失败，因为应用程序服务可能在数据库服务之前启动，并且找不到能够处理其 SQL 语句的数据库。
+
+在 `services` 下面有两个指令可以控制服务的启动顺序：`depends_on` 和 `links`
+
+**depends_on**：在启动服务时先启动 `web`，并且在关闭服务时先关闭 `web`服务。
+
+~~~yaml
+services:
+  web:
+    build: .
+    depends_on:
+      - redis
+  redis:
+    image: redis
+~~~
+
+上面的例子是 `depends_on` 的简单配置版本，它还可以和 `condition`、`restart` 等配合使用。
+
+~~~yaml
+ervices:
+  web:
+    build: .
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+        restart: true
+  redis:
+    image: redis
+  mysql:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD="12345"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+~~~
+
+- `condition` 配置被依赖的 `redis` 和 `mysql` 服务 到什么状态时再启动 `web` 服务。它有三个值可以选择
+  - `service_started` 等价于 `depends_on` 的简单配置
+  - `service_healthy` 达到被认为是[健康](https://docs.docker.com/reference/compose-file/services/#healthcheck)时的状态
+  - `service_completed_successfully`
+
+- `restart` 设置为 `true` 时则表示 `redis` 服务重启会自动重启 `web` 服务。
+
+
+
+**links**：可以指定服务名称和别名，这样的好处是可以通过服务名或者别名访问被链接服务。
+
+`links` 表达了服务之间的隐式依赖关系，和 `depends_on` 一样可以控制服务启动的顺序。
+
+~~~yaml
+web:
+  links:
+    - db
+    - db:database
+    - redis
+~~~
+
+<br>
+
+
 
 # compose 文件指令之networks
 
-# ompose 文件指令之volumes
+默认情况下，Compose 会为根据项目名称自动创建一个网络。服务的每个容器都加入默认网络，并且可以被该网络上的其他容器访问，并且可以通过服务名称发现。
+
+**创建自定义网络**
+
+~~~yaml
+services:
+  redis:
+    image: redis
+    container_name: my-redis
+    networks:
+      - backend
+  web:
+    restart: always
+    container_name: my-web-app
+    image: y-web
+    build: .
+    depends_on:
+      redis:
+        condition: service_started
+        restart: true
+    ports:
+     - 5000:5000
+    networks:
+     - backend
+
+networks:
+  backend:
+    name: xxxxxx
+    driver: bridge
+    external: true
+~~~
+
+其中：
+
+- 参数 `name` 表示自定义网络的名字
+- 参数 `driver`  表示网络的类型，默认是 `bridge`
+- 参数 `external` 表示是否使用已经存在的网络。
+
+如果通过 Compse 创建网络，那运行项目时会自动按照配置创建网络，删除项目时会自动删除创建的网络。如果使用的是外部网络，compose运行项目时不会再创建网络，删除项目时也不会删除网络。
+
+<br>
+
+
+
+# compose 文件指令之volumes
+
+Compose 文件中配置 `volumes` 可以是要新建的数据卷，也可以是一个存在的数据卷。指定 `volumes` 后，数据会保存在宿主机上，及时容器销毁掉再创建的容器中也会找到以前的数据。
+
+~~~yaml
+services:
+  web:
+    build: .
+
+  mysql:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345
+    volumes:
+      - db-data:/var/lib/mysql
+
+volumes:
+   db-data:
+      name: "my-app-data"
+      external: true
+~~~
+
+
+
+
 
 # compose 文件指令之 include
+
+
+
+
+
+
 
 # compose 文件指令之 watch
 
