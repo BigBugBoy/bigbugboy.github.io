@@ -635,7 +635,7 @@ web:
 
 
 
-# compose 文件指令之networks
+# compose 之 networks
 
 默认情况下，Compose 会为根据项目名称自动创建一个网络。服务的每个容器都加入默认网络，并且可以被该网络上的其他容器访问，并且可以通过服务名称发现。
 
@@ -681,7 +681,7 @@ networks:
 
 
 
-# compose 文件指令之volumes
+# compose 之 volumes
 
 Compose 文件中配置 `volumes` 可以是要新建的数据卷，也可以是一个存在的数据卷。指定 `volumes` 后，数据会保存在宿主机上，及时容器销毁掉再创建的容器中也会找到以前的数据。
 
@@ -707,15 +707,101 @@ volumes:
 
 
 
-# compose 文件指令之 include
+# compose 之 include
+
+如果有多个 Compose 文件，单独管理控制，此时可以使用 `include` 管理。
+
+使用 `include` 的好处：
+
+- 您想重用其他 Compose 文件。 
+- 您需要将应用程序模型的各个部分分解为单独的 Compose 文件，以便可以单独管理它们或与他人共享。
+-  团队需要将 Compose 文件保持在合理的复杂度，以适应其在较大部署中为其自己的子域声明的有限资源量。
+
+**引用基础服务的 Compose 文件**
+
+- 定义基础设施服务的文件 infra.yaml
+
+~~~yaml
+services:
+  mysql:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345
+    ports:
+      - 3306:3306    
+
+  redis:
+    image: redis
+~~~
+
+- 项目的 Compose 文件引入 infra.yaml
+
+~~~yaml
+include:
+  - infra.yaml
+
+services:
+  web:
+    build: .
+    depends_on:
+      - redis
+      - mysql
+~~~
+
+
+
+**覆盖引用的 Compose 文件中的服务**
+
+**方式1**：使用 `compose.override.yaml`
+
+~~~yaml
+services:
+  redis:
+    ports:
+      - 6379:6379
+    environment:
+      - NAME=liuxu
+~~~
+
+**方式2**：在 `compose.yaml` 中include 时指定覆盖文件
+
+my_override.yaml
+
+~~~yaml
+services:
+  redis:
+    ports:
+      - 6379:6379
+    environment:
+      - NAME=liuxu
+~~~
+
+compose.yaml
+
+~~~yaml
+  - path:
+      - infra.yaml
+      - my_override.yaml
+
+services:
+  web:
+    build: .
+    depends_on:
+      - redis
+      - mysql
+~~~
+
+
+
+
+
+# compose 之 watch
 
 
 
 
 
 
-
-# compose 文件指令之 watch
 
 # compose 构建WordPress博客系统
 
